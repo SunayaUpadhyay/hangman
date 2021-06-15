@@ -31,5 +31,6 @@ def choice_input_from_user
   user_input
 end
 
+system 'clear'
 start_game
 puts Display.end_credit

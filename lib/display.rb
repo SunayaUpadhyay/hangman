@@ -7,11 +7,11 @@ module Display
   extend self
 
   def output_game_option
-    <<-DOCS
+    <<~DOCS
 
-    [1] Play a new game
-    [2] Load game
-    [3] Exit
+      [1] Play a new game
+      [2] Load game
+      [3] Exit
 
     DOCS
   end
@@ -44,11 +44,18 @@ module Display
   end
 
   def display_game_state(try, progress, already_guessed)
-    "Tries left #{try}  Word completed so far #{progress.join(' ')} Word guessed so far #{already_guessed.join(', ')}."
+    <<~DOCS
+      Tries left ##{try.to_s.bold}
+
+      #{progress.join(' ')}
+
+      You have already guessed: #{already_guessed.join(', ')}
+
+    DOCS
   end
 
   def congratulation_message
-    'Congratulation, you have guessed the correct word.'
+    "#{'Congratulation'.red.bold}, you guessed the correct word."
   end
 
   def try_next_time_message
@@ -56,7 +63,11 @@ module Display
   end
 
   def correct_answer(answer)
-    "The correct word was #{answer}".blue
+    <<~DOCS
+
+      The word was #{answer.join.to_s.bold}
+
+    DOCS
   end
 
   def enter_fname

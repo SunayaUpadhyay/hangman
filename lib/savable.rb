@@ -15,7 +15,7 @@ module Savable
   def save_game(obj)
     user_chosen_fname = make_file_name
     if user_chosen_fname != 'eixt'
-      fname_with_date = "#{Time.now.strftime('%Y-%m-%d at %k:%M')} #{user_chosen_fname}"
+      fname_with_date = "#{Time.now.strftime('%Y-%m-%d at %H:%M')} #{user_chosen_fname}"
       fname = "#{DIR_NAME}/#{fname_with_date.gsub(' ', '_')}.yaml"
       File.open(fname, 'w') do |file|
         file.write(YAML.dump(obj))
@@ -25,10 +25,15 @@ module Savable
   end
 
   def display_save_file(save_files)
+    puts "[N]   Date Saved#{' ' * 12}File Name".blue.bold
+    puts ''
     save_files.each_with_index do |fname, index|
-      puts "[#{index}] #{clean_fname(fname)}"
+      clean_name = clean_fname(fname)
+      puts "[#{index}]   #{clean_name[0..18]}  #{clean_name[19..-1]}"
     end
-    puts "[#{save_files.length}] Exit"
+    puts ''
+    puts "[#{save_files.length}]  Exit"
+    puts ''
   end
 
   def user_chosen_save_number(save_files)

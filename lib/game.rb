@@ -28,7 +28,7 @@ class Game
       print input_your_guess
       self.user_input = gets.chomp.downcase
       letter = user_input[0]
-      break if !input_invalid?(letter) || exit? || save_game?
+      break if !input_invalid?(letter) || exit? || game_saved?
 
       puts invalid_letter
     end
@@ -45,6 +45,7 @@ class Game
   end
 
   def self.load_game
+    system 'clear'
     load_saved_file
   end
 
@@ -52,20 +53,22 @@ class Game
     display_state
     while tries.positive?
       char = input_from_user
-      if save_game?
-        Game.save_game(self)
-        puts successful_saved
-        break
-      end
-      break if exit?
+      save_game if game_saved?
+      break if exit? || game_saved?
 
       process_player_and_display(char, word)
       break if player.won?
     end
   end
 
-  def save_game?
+  def game_saved?
     self.to_save = user_input == 'save'
+  end
+
+  def save_game
+    system 'clear'
+    Game.save_game(self)
+    puts successful_saved
   end
 
   def process_player_and_display(char, word)
@@ -75,6 +78,7 @@ class Game
   end
 
   def display_state
+    system 'clear'
     puts display_game_state(tries, player.progress, player.guessed_sofar)
   end
 
