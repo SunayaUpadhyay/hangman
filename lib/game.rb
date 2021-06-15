@@ -1,57 +1,97 @@
 # frozen_string_literal: true
 
+require_relative 'display'
+require_relative 'word'
+require_relative 'player'
+require_relative 'savable'
+
 # Game class
 class Game
-  include 'display'
+  extend Savable
+  include Display
 
-  attr_reader :word, :player
+  attr_accessor :word, :player, :tries, :user_input, :to_save
 
   GAME_TRIES = 12
 
-  def initailize
+  def initialize
     @word = Word.generate.split('')
     @player = Player.new(word.length)
+    @tries = GAME_TRIES
+    @user_input = nil
+    @to_save = nil
   end
 
-  def start_game
-    display_game_start
-    case choice_input_from_user
-    when '1' then play_new
-    when '2' then load_game
-    when '3' then puts end_credit
-    end
-  end
+  def input_from_user
+    letter = nil
+    loop do
+      print input_your_guess
+      self.user_input = gets.chomp.downcase
+      letter = user_input[0]
+      break if !input_invalid?(letter) || exit? || save_game?
 
-  def display_game_start
-    puts introduction
-    puts output_game_option
-  end
-
-  def choice_input_from_user
-    print enter_valid_number
-    user_input = gets.chomp until user_input.to_i.between?(1, 3)
-    user_input
-  end
-
-  def letter_from_user
-    print input_your_guess
-    letter = gets.chomp[0]
-    if !letter.match(/[A-Za-z]/) || player.guessed_sofar.include?(letter)
       puts invalid_letter
-      letter_from_user
     end
     letter
   end
 
-  def play_new
+  def input_invalid?(letter)
+    !letter.match(/[a-z]/) || player.guessed_sofar.include?(letter) || player.progress.include?(letter)
+  end
+
+  def play
     game_loop
-    conclusion
+    conclusion unless to_save || exit?
+  end
+
+  def self.load_game
+    load_saved_file
   end
 
   def game_loop
-    GAME_TRIES.times do |try|
-      display_game_state(try, player.progress, player.guessed_sofar)
-      player.process_char(char, word)
+    display_state
+    while tries.positive?
+      char = input_from_user
+      if save_game?
+        Game.save_game(self)
+        puts successful_saved
+        break
+      end
+      break if exit?
+
+      process_player_and_display(char, word)
+      break if player.won?
+    end
+  end
+
+  def save_game?
+    self.to_save = user_input == 'save'
+  end
+
+  def process_player_and_display(char, word)
+    self.player = player.process_char(char, word)
+    decrement_tries
+    display_state
+  end
+
+  def display_state
+    puts display_game_state(tries, player.progress, player.guessed_sofar)
+  end
+
+  def exit?
+    user_input == 'exit'
+  end
+
+  def decrement_tries
+    self.tries -= 1 if player.incorrect_guess
+  end
+
+  def conclusion
+    puts correct_answer(word)
+    if player.won?
+      puts congratulation_message
+    else
+      puts try_next_time_message
     end
   end
 end

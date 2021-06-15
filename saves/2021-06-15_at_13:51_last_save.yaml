@@ -1,0 +1,30 @@
+--- !ruby/object:Game
+word:
+- o
+- r
+- i
+- e
+- n
+- t
+- a
+- l
+- l
+- y
+player: !ruby/object:Player
+  progress:
+  - o
+  - _
+  - i
+  - e
+  - _
+  - _
+  - a
+  - _
+  - _
+  - _
+  guessed_sofar:
+  - u
+  incorrect_guess: true
+tries: 11
+user_input: save
+to_save: true
